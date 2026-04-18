@@ -1,0 +1,20 @@
+package com.example.demo.system.user.entity;
+
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.example.demo.common.entity.IUser;
+import lombok.Data;
+
+/**
+ * 用户身份模型（你的专属名牌）
+ */
+@Data
+@TableName("blade_user")
+public class User implements IUser {
+
+    @TableId
+    private Long id;
+    private String account;
+    private String tenantId; // 核心：多租户ID
+    private String name;
+}
