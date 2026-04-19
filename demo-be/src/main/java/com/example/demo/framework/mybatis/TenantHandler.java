@@ -24,10 +24,11 @@ public class TenantHandler implements TenantLineHandler{
         return "tenant_id";
     }
 
-    //需要忽略的表
+    // 没有登录用户时忽略租户过滤，避免开发阶段 tenant_id='-1' 导致查不到数据
     @Override
     public boolean ignoreTable(String tableName) {
-        return false;
+        String tenantId = UserContext.getTenantId();
+        return tenantId == null || tenantId.isEmpty();
     }
 
 

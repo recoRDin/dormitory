@@ -28,6 +28,6 @@ public class BaseEntity implements Serializable {
 
     // 逻辑删除标记（0:未删除, 1:已删除）
     @TableLogic
-    @TableField(fill = FieldFill.INSERT)
+    @TableField(value = "is_deleted", fill = FieldFill.INSERT)
     private Integer isDeleted;
 }

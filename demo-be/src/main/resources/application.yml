@@ -4,9 +4,9 @@ spring:
     name:demo
   datasource:
       driver-class-name: com.mysql.jdbc.Driver
-      url: jdbc:mysql://localhost:3307/demo?useSSL=false&serverTimezone=UTC
+      url: jdbc:mysql://localhost:3306/dormitory?useSSL=false&serverTimezone=UTC
       username: root
-      password: root
+      password: 123456
   data:
     redis:
       host: localhost
@@ -18,3 +18,7 @@ spring:
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-value: 1
+      logic-not-delete-value: 0

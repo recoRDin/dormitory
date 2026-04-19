@@ -1,7 +1,7 @@
-package com.example.demo.module.student.mapper;
+package com.example.demo.biz.student.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.example.demo.module.student.entity.Student;
+import com.example.demo.biz.student.entity.Student;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper

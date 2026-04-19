@@ -2,8 +2,8 @@
 
 ## 文档信息
 - **模块名称**: 学生管理模块
-- **文档版本**: v1.0
-- **最后更新**: 2026-04-17
+- **文档版本**: v1.1
+- **最后更新**: 2026-04-18
 - **后端框架**: Spring Boot 3.5.11 + MyBatis-Plus 3.5.5
 - **前端框架**: Next.js 16.2.3 + TypeScript + Ant Design
 - **数据库**: MySQL 8.0+（无外键约束）
@@ -13,12 +13,10 @@
 | 接口名称 | 请求方法 | 路径 | 功能描述 | 权限要求 |
 |---------|---------|------|---------|----------|
 | 分页查询学生列表 | GET | `/api/student/page` | 分页查询学生信息，支持多条件筛选 | `student:view` |
-| 获取学生详情 | GET | `/api/student/{id}` | 根据ID获取学生详细信息 | `student:view` |
 | 新增学生信息 | POST | `/api/student` | 创建新的学生记录 | `student:add` |
 | 修改学生基础信息 | PUT | `/api/student` | 根据ID更新学生基础信息 | `student:edit` |
 | 分配/调换床位 | POST | `/api/student/assign-bed` | 为学生分配或调换床位 | `student:assignBed` |
 | 批量逻辑删除学生 | DELETE | `/api/student` | 批量逻辑删除学生记录 | `student:delete` |
-| 导出学生数据 | GET | `/api/student/export` | 导出学生数据为Excel文件 | `student:export` |
 
 ## 数据表结构
 ```sql
@@ -33,8 +31,6 @@ CREATE TABLE `biz_student` (
   `class_id` BIGINT NOT NULL COMMENT '班级ID',
   `bed_id` BIGINT DEFAULT NULL COMMENT '当前床位ID',
   `user_id` BIGINT DEFAULT NULL COMMENT '关联账号ID',
-  `status` TINYINT DEFAULT 1 COMMENT '1在校,2休学,3毕业,4退学',
-  `enroll_date` DATE COMMENT '入学日期',
   `tenant_id` VARCHAR(32) NOT NULL DEFAULT '000000',
   `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -56,52 +52,44 @@ CREATE TABLE `biz_student` (
 
 | 参数名 | 类型 | 是否必填 | 描述 | 示例值 |
 |--------|------|----------|------|--------|
-| pageNum | Integer | 否 | 当前页码，默认1 | 1 |
-| pageSize | Integer | 否 | 每页条数，默认10 | 10 |
+| current | Integer | 否 | 当前页码，默认1 | 1 |
+| size | Integer | 否 | 每页条数，默认10 | 10 |
 | name | String | 否 | 学生姓名（模糊查询） | 张三 |
-| studentNo | String | 否 | 学号（精确查询） | 202301001 |
+| studentNo | String | 否 | 学号（模糊查询） | 202301001 |
 | classId | Long | 否 | 班级ID（精确查询） | 1 |
 | gender | Integer | 否 | 性别（1-男，2-女） | 1 |
-| status | Integer | 否 | 学生状态（1在校，2休学，3毕业，4退学） | 1 |
-| sortField | String | 否 | 排序字段（createTime/name/studentNo） | createTime |
-| sortOrder | String | 否 | 排序方式（asc/desc） | desc |
 
 ### 响应参数
 
 **data 结构**:
 ```json
 {
-  "total": 150,      // 总记录数
-  "pages": 15,       // 总页数
-  "current": 1,      // 当前页码
-  "size": 10,        // 每页大小
-  "records": []      // 当前页数据列表
+  "total": 150,
+  "pages": 15,
+  "current": 1,
+  "size": 10,
+  "records": []
 }
 ```
 
 **records 中每个学生的字段**:
+
 | 字段名 | 类型 | 描述 | 示例值 |
 |--------|------|------|--------|
 | id | Long | 学生ID | 1001 |
 | studentNo | String | 学号 | 202301001 |
 | name | String | 姓名 | 张三 |
 | gender | Integer | 性别（1-男，2-女） | 1 |
-| genderText | String | 性别文本 | 男 |
 | idCard | String | 身份证号 | 110101200001011234 |
 | phone | String | 手机号 | 13800138001 |
 | email | String | 邮箱 | zhangsan@university.edu.cn |
 | classId | Long | 班级ID | 1 |
-| className | String | 班级名称 | 软件工程2023级1班 |
 | bedId | Long | 床位ID | 201 |
-| bedInfo | String | 床位信息 | 男寝1栋-404-A床 |
-| status | Integer | 学生状态 | 1 |
-| statusText | String | 状态文本 | 在校 |
-| enrollDate | String | 入学日期 | 2023-09-01 |
 | createTime | String | 创建时间 | 2023-09-01T08:30:00 |
 
 ### 请求示例
 ```bash
-GET /api/student/page?pageNum=1&pageSize=10&name=张&classId=1&gender=1
+GET /api/student/page?current=1&size=10&name=张&classId=1&gender=1
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
@@ -109,8 +97,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```json
 {
   "code": 200,
-  "success": true,
-  "msg": "查询成功",
+  "message": "操作成功",
   "data": {
     "total": 45,
     "pages": 5,
@@ -122,17 +109,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
         "studentNo": "202301001",
         "name": "张三",
         "gender": 1,
-        "genderText": "男",
         "idCard": "110101200001011234",
         "phone": "13800138001",
         "email": "zhangsan@university.edu.cn",
         "classId": 1,
-        "className": "软件工程2023级1班",
         "bedId": 201,
-        "bedInfo": "男寝1栋-404-A床",
-        "status": 1,
-        "statusText": "在校",
-        "enrollDate": "2023-09-01",
         "createTime": "2023-09-01T08:30:00"
       },
       {
@@ -140,17 +121,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
         "studentNo": "202301002",
         "name": "李四",
         "gender": 1,
-        "genderText": "男",
         "idCard": "110101200001021234",
         "phone": "13800138002",
         "email": "lisi@university.edu.cn",
         "classId": 1,
-        "className": "软件工程2023级1班",
         "bedId": 202,
-        "bedInfo": "男寝1栋-404-B床",
-        "status": 1,
-        "statusText": "在校",
-        "enrollDate": "2023-09-01",
         "createTime": "2023-09-01T08:35:00"
       }
     ]
@@ -158,57 +133,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 }
 ```
 
-## 2. 获取学生详情
-
-### 基本信息
-- **请求方法**: GET
-- **路径**: `/api/student/{id}`
-- **权限要求**: `student:view`
-- **功能描述**: 根据ID获取学生详细信息
-
-### 请求参数（Path Variable）
-| 参数名 | 类型 | 是否必填 | 描述 | 示例值 |
-|--------|------|----------|------|--------|
-| id | Long | 是 | 学生ID | 1001 |
-
-### 响应参数
-同分页查询中的单个学生对象，包含完整信息。
-
-### 请求示例
-```bash
-GET /api/student/1001
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
-### 响应示例
-```json
-{
-  "code": 200,
-  "success": true,
-  "msg": "查询成功",
-  "data": {
-    "id": 1001,
-    "studentNo": "202301001",
-    "name": "张三",
-    "gender": 1,
-    "genderText": "男",
-    "idCard": "110101200001011234",
-    "phone": "13800138001",
-    "email": "zhangsan@university.edu.cn",
-    "classId": 1,
-    "className": "软件工程2023级1班",
-    "bedId": 201,
-    "bedInfo": "男寝1栋-404-A床",
-    "status": 1,
-    "statusText": "在校",
-    "enrollDate": "2023-09-01",
-    "createTime": "2023-09-01T08:30:00",
-    "updateTime": "2023-09-15T10:20:00"
-  }
-}
-```
-
-## 3. 新增学生信息
+## 2. 新增学生信息
 
 ### 基本信息
 - **请求方法**: POST
@@ -227,16 +152,15 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 | phone | String | 否 | 手机号 | 13800138003 |
 | email | String | 否 | 邮箱 | wangwu@university.edu.cn |
 | classId | Long | 是 | 班级ID | 1 |
-| enrollDate | String | 否 | 入学日期（yyyy-MM-dd） | 2023-09-01 |
 
-**注意**: `bedId` 和 `user_id` 在新增时不传，后续通过专门接口分配。
+**注意**: `bedId` 和 `userId` 在新增时不传，后续通过专门接口分配。
 
 ### 响应参数
+
 | 参数名 | 类型 | 描述 |
 |--------|------|------|
 | code | Integer | 状态码 |
-| success | Boolean | 是否成功 |
-| msg | String | 提示信息 |
+| message | String | 提示信息 |
 | data | Object | 新增的学生ID |
 
 ### 请求示例
@@ -248,34 +172,29 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
   "idCard": "110101200001031234",
   "phone": "13800138003",
   "email": "wangwu@university.edu.cn",
-  "classId": 1,
-  "enrollDate": "2023-09-01"
+  "classId": 1
 }
 ```
 
-### 响应示例
+### 响应示例（成功）
 ```json
 {
   "code": 200,
-  "success": true,
-  "msg": "学生信息新增成功",
-  "data": {
-    "id": 1003
-  }
+  "message": "操作成功",
+  "data": 1003
 }
 ```
 
 ### 错误响应示例
 ```json
 {
-  "code": 400,
-  "success": false,
-  "msg": "学号已存在",
+  "code": 500,
+  "message": "学号已存在：202301003",
   "data": null
 }
 ```
 
-## 4. 修改学生基础信息
+## 3. 修改学生基础信息
 
 ### 基本信息
 - **请求方法**: PUT
@@ -288,46 +207,56 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 | 字段名 | 类型 | 是否必填 | 描述 | 示例值 |
 |--------|------|----------|------|--------|
 | id | Long | 是 | 学生ID | 1001 |
-| name | String | 否 | 学生姓名 | 张三丰 |
-| gender | Integer | 否 | 性别（1-男，2-女） | 1 |
+| studentNo | String | 是 | 学号（租户内唯一） | 202301001 |
+| name | String | 是 | 学生姓名 | 张三丰 |
+| gender | Integer | 是 | 性别（1-男，2-女） | 1 |
 | idCard | String | 否 | 身份证号 | 110101200001011234 |
 | phone | String | 否 | 手机号 | 13800138888 |
 | email | String | 否 | 邮箱 | zhangsanfeng@university.edu.cn |
-| classId | Long | 否 | 班级ID | 2 |
-| status | Integer | 否 | 学生状态（1在校，2休学，3毕业，4退学） | 1 |
+| classId | Long | 是 | 班级ID | 2 |
 
-**注意**: 只能修改基础信息，不能修改`studentNo`（学号）、`bedId`（床位分配有专门接口）。
+**注意**: `bedId` 不能通过此接口修改，需使用专门的分配床位接口。
 
 ### 响应参数
+
 | 参数名 | 类型 | 描述 |
 |--------|------|------|
 | code | Integer | 状态码 |
-| success | Boolean | 是否成功 |
-| msg | String | 提示信息 |
+| message | String | 提示信息 |
 | data | null | 无数据 |
 
 ### 请求示例
 ```json
 {
   "id": 1001,
+  "studentNo": "202301001",
   "name": "张三丰",
+  "gender": 1,
   "phone": "13800138888",
   "email": "zhangsanfeng@university.edu.cn",
-  "status": 1
+  "classId": 2
 }
 ```
 
-### 响应示例
+### 响应示例（成功）
 ```json
 {
   "code": 200,
-  "success": true,
-  "msg": "学生信息更新成功",
+  "message": "操作成功",
   "data": null
 }
 ```
 
-## 5. 分配/调换床位
+### 错误响应示例
+```json
+{
+  "code": 500,
+  "message": "学号已存在：202301001",
+  "data": null
+}
+```
+
+## 4. 分配/调换床位
 
 ### 基本信息
 - **请求方法**: POST
@@ -350,20 +279,20 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 5. 目标床位所在房间必须未满员
 
 ### 响应参数
+
 | 参数名 | 类型 | 描述 |
 |--------|------|------|
 | code | Integer | 状态码 |
-| success | Boolean | 是否成功 |
-| msg | String | 提示信息 |
+| message | String | 提示信息 |
 | data | Object | 分配结果 |
 
 **data 结构**:
+
 | 字段名 | 类型 | 描述 | 示例值 |
 |--------|------|------|--------|
 | studentId | Long | 学生ID | 1001 |
-| oldBedId | Long | 原床位ID（调换时） | 201 |
+| oldBedId | Long | 原床位ID（调换时有值） | 201 |
 | newBedId | Long | 新床位ID | 205 |
-| roomInfo | String | 房间信息 | 男寝1栋-405-B床 |
 | operation | String | 操作类型（assign/swap） | swap |
 
 ### 请求示例
@@ -378,13 +307,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```json
 {
   "code": 200,
-  "success": true,
-  "msg": "床位分配成功",
+  "message": "操作成功",
   "data": {
     "studentId": 1001,
     "oldBedId": null,
     "newBedId": 205,
-    "roomInfo": "男寝1栋-405-B床",
     "operation": "assign"
   }
 }
@@ -394,13 +321,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```json
 {
   "code": 200,
-  "success": true,
-  "msg": "床位调换成功",
+  "message": "操作成功",
   "data": {
     "studentId": 1001,
     "oldBedId": 201,
     "newBedId": 205,
-    "roomInfo": "男寝1栋-405-B床",
     "operation": "swap"
   }
 }
@@ -409,14 +334,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ### 错误响应示例
 ```json
 {
-  "code": 400,
-  "success": false,
-  "msg": "目标床位已被占用",
+  "code": 500,
+  "message": "目标床位已被占用",
   "data": null
 }
 ```
 
-## 6. 批量逻辑删除学生
+## 5. 批量逻辑删除学生
 
 ### 基本信息
 - **请求方法**: DELETE
@@ -431,14 +355,41 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 | ids | String | 是 | 学生ID列表，用逗号分隔 | 1001,1002,1003 |
 
 **业务规则**:
-1. 只能删除状态为"在校"或"休学"的学生
-2. 如果学生已分配床位，需要先释放床位
-3. 如果学生有关联账号，需要解除关联
-4. 执行逻辑删除（is_deleted=1），非物理删除
+1. 如果学生已分配床位，需要先释放床位
+2. 如果学生有关联账号，需要解除关联
+3. 执行逻辑删除（is_deleted=1），非物理删除
 
 ### 响应参数
-| 参数名 | 类型 | 描述
----
+
+| 参数名 | 类型 | 描述 |
+|--------|------|------|
+| code | Integer | 状态码 |
+| message | String | 提示信息 |
+| data | null | 无数据 |
+
+### 请求示例
+```bash
+DELETE /api/student?ids=1001,1002,1003
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+### 响应示例（成功）
+```json
+{
+  "code": 200,
+  "message": "操作成功",
+  "data": null
+}
+```
+
+### 错误响应示例
+```json
+{
+  "code": 500,
+  "message": "学生不存在或已被删除",
+  "data": null
+}
+```
 
 ## 注意事项
 
@@ -455,8 +406,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 - 支持操作失败时的重试
 
 ### 3. 性能优化
-- 分页查询默认限制 pageSize ≤ 100
-- 大数据量导出使用异步任务
+- 分页查询默认限制 size ≤ 100
 - 频繁访问的数据（如班级选项）建议缓存
 
 ### 4. 安全考虑
@@ -466,7 +416,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ---
 
-**文档版本**: v1.0  
-**最后更新**: 2026-04-17  
-**维护团队**: 宿舍管理系统开发团队  
-**联系方式**: 系统管理员
+**文档版本**: v1.1  
+**最后更新**: 2026-04-18  
+**维护团队**: 宿舍管理系统开发团队
