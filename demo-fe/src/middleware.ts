@@ -10,10 +10,7 @@ export function middleware(request: NextRequest){
     const currentPath = request.nextUrl.pathname;
 
     if (whiteList.includes(currentPath)) {
-        
-        if (token && currentPath === '/login') {
-            return NextResponse.redirect(new URL('/', request.url));
-        }
+    
         // 没登录访问白名单，正常放行
         return NextResponse.next();
     }

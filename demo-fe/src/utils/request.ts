@@ -147,7 +147,9 @@ request.interceptors.response.use(
           Cookies.remove('token');
           Cookies.remove('refresh_token');
           useAuthStore.getState().clearAuth();
-          window.location.href = '/login';
+          if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
+            window.location.href = '/login';
+          }
           return Promise.reject(refreshErr);
         }
       }
