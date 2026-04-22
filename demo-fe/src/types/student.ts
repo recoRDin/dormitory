@@ -1,6 +1,6 @@
 //分页
 export interface PageResult<T>{
-    record: T[];
+    records: T[];
     total: number;
     size: number;
     current: number;

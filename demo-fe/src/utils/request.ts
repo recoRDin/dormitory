@@ -1,4 +1,4 @@
-import axios ,{ InternalAxiosRequestConfig, AxiosResponse, AxiosError }from "axios";
+import axios ,{ InternalAxiosRequestConfig, AxiosResponse, AxiosError, AxiosRequestConfig }from "axios";
 import { message } from "antd";
 import Cookies from "js-cookie";
 import NProgress from 'nprogress';
@@ -42,7 +42,12 @@ const request = axios.create({
   timeout: 10000,
   withCredentials: true, // 跨域允许带 cookie
 });
-
+interface AxiosInstanceOverride {
+  get<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T>;
+  post<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T>;
+  put<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T>;
+  delete<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T>;
+}
 const refreshTokenApi = async (): Promise<string> => {
   const response = await axios.post('/auth/refresh', {}, {
     headers: {
@@ -167,4 +172,4 @@ request.interceptors.response.use(
   }
 );
 
-export default request;
+export default request as AxiosInstanceOverride;

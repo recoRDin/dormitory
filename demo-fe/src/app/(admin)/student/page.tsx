@@ -28,7 +28,7 @@ export default function StudentPage(){
   const[data,setData] = useState<Student[]>([]);//表格数据
   const[total,setTotal] = useState(0);//总条数
   const[loading,setLoading] = useState(false);//加载状态
-  const[selectIds,setSelectIds] = useState<number[]>([]);//批量选中
+  const[selectedIds,setSelectedIds] = useState<number[]>([]);//批量选中
 
   //搜索条件
   const [query, setQuery] = useState<StudentQuery>({ current: 1, size: 10 });
@@ -112,7 +112,7 @@ export default function StudentPage(){
   
     // ==================== 分页 ====================
     const handleTableChange = (pagination: { current?: number; pageSize?: number }) => {
-      setQuery({ ...query, current: pagination.current, size: pagination.size });
+      setQuery({ ...query, current: pagination.current, size: pagination.pageSize });
     };
   
     // ==================== 表格列定义 ====================
