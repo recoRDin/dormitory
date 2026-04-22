@@ -21,8 +21,10 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         // 1. 从 Header 获取 Token
-        String token = request.getHeader("X-Auth-Token");
-
+        String token = request.getHeader("Authorization");
+        if (token != null && token.startsWith("bearer ")) {
+        token = token.substring(7);
+        }
         // 如果没有 Token，直接拦住并返回 401
         if (token == null || token.isEmpty()) {
             response.setStatus(401);
