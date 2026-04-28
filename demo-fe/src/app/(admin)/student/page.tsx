@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import type { Student, StudentQuery, StudentSave } from '@/types/student';
+import type { Student, StudentQuery } from '@/types/student';
 import type { ColumnsType } from 'antd/es/table';
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 
 import {
-  Table, Button, Space, Input, Select, Form,
+  Table, Button, Space, Input, InputNumber, Select, Form,
   Modal, message, Popconfirm, Tag,
 } from 'antd';
 
@@ -28,7 +28,7 @@ export default function StudentPage(){
   const[data,setData] = useState<Student[]>([]);//表格数据
   const[total,setTotal] = useState(0);//总条数
   const[loading,setLoading] = useState(false);//加载状态
-  const[selectedIds,setSelectedIds] = useState<number[]>([]);//批量选中
+  const[selectedIds,setSelectedIds] = useState<string[]>([]);//批量选中
 
   //搜索条件
   const [query, setQuery] = useState<StudentQuery>({ current: 1, size: 10 });
@@ -84,7 +84,7 @@ export default function StudentPage(){
         const values = await form.validateFields();
         if (editingStudent) {
           // 编辑
-          await updateStudent({ ...values, id: editingStudent.id });
+          await updateStudent({ id: editingStudent.id, ...values });
           message.success('修改成功');
         } else {
           // 新增
@@ -99,7 +99,7 @@ export default function StudentPage(){
   };
   
     // ==================== 删除 ====================
-  const handleDelete = async (ids: (number | string)[]) => {
+  const handleDelete = async (ids: string[]) => {
       try {
         await batchDeleteStudents(ids);
         message.success('删除成功');
@@ -243,7 +243,7 @@ export default function StudentPage(){
           loading={loading}
           rowSelection={{
             selectedRowKeys: selectedIds,
-            onChange: (keys) => setSelectedIds(keys as number[]),
+            onChange: (keys) => setSelectedIds(keys as string[]),
           }}
           pagination={{
             current: query.current,
@@ -311,7 +311,7 @@ export default function StudentPage(){
               label="班级ID"
               rules={[{ required: true, message: '请输入班级ID' }]}
             >
-              <Input placeholder="请输入班级ID" type="number" />
+              <InputNumber placeholder="请输入班级ID" style={{ width: '100%' }} />
             </Form.Item>
           </Form>
         </Modal>
