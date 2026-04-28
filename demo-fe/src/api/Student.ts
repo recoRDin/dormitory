@@ -17,7 +17,7 @@ export function getStudentPage(params: StudentQuery){
 
 //新增学生
 export function addStudent(data:StudentSave){
-    return request.post<number>('/student',data);
+    return request.post<string>('/student',data);
 }
 
 //修改学生
@@ -26,7 +26,7 @@ export function updateStudent(data: StudentSave){
 }
 
 //删除学生
-export function batchDeleteStudents(ids:(number|string)[]){
+export function batchDeleteStudents(ids:string[]){
     return request.delete<void>('/student',{params:{ids:ids.join(',')}})
 }
 
