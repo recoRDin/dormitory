@@ -29,11 +29,15 @@ public class AuthController {
         if (user == null) {
             return Result.error("账号不存在");
         }
+
+        if(!loginDTO.getPassword().equals(user.getPassword())){
+            return Result.error("密码错误");
+        }
         Map<String, Object> claims = new HashMap<>();
         claims.put("user_id", user.getId());
         claims.put("tenant_id", user.getTenantId());
 
-        String token = JwtUtil.createToken(claims, account);
+        String token = JwtUtil.createToken(claims, user.getAccount());
         return Result.success("登录成功", token);
     }
 }

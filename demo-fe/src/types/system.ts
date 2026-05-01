@@ -6,3 +6,8 @@ export interface SysMenu {
   code?: string;
   children?: SysMenu[];
 }
+
+export interface LoginDTO {
+  account: string;
+  password: string;
+}
