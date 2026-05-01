@@ -42,5 +42,5 @@ public interface IUser {
     /**
      * 设置账号
      */
-    void setAccount(String account);
+    void setAccount(String username);
 }
