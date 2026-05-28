@@ -6,6 +6,7 @@ import {
   HomeOutlined,
   UserOutlined,
   TeamOutlined,
+  BankOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   LogoutOutlined,
@@ -31,6 +32,11 @@ const sideMenuItems: MenuProps['items'] = [
     key: '/class',
     icon: <TeamOutlined />,
     label: '班级管理',
+  },
+  {
+    key: '/building',
+    icon: <BankOutlined />,
+    label: '楼宇管理',
   },
 ];
 
