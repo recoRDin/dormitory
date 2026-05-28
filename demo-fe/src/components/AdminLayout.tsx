@@ -7,6 +7,7 @@ import {
   UserOutlined,
   TeamOutlined,
   BankOutlined,
+  AppstoreOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   LogoutOutlined,
@@ -37,6 +38,11 @@ const sideMenuItems: MenuProps['items'] = [
     key: '/building',
     icon: <BankOutlined />,
     label: '楼宇管理',
+  },
+  {
+    key: '/room',
+    icon: <AppstoreOutlined />,
+    label: '房间管理',
   },
 ];
 
