@@ -5,6 +5,7 @@ import { Layout, Menu, theme, Dropdown, Avatar, Space } from 'antd';
 import {
   HomeOutlined,
   UserOutlined,
+  TeamOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   LogoutOutlined,
@@ -25,6 +26,11 @@ const sideMenuItems: MenuProps['items'] = [
     key: '/student',
     icon: <UserOutlined />,
     label: '学生管理',
+  },
+  {
+    key: '/class',
+    icon: <TeamOutlined />,
+    label: '班级管理',
   },
 ];
 
