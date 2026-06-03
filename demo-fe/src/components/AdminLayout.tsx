@@ -11,6 +11,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   LogoutOutlined,
+  RobotOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { useRouter, usePathname } from 'next/navigation';
@@ -43,6 +44,11 @@ const sideMenuItems: MenuProps['items'] = [
     key: '/room',
     icon: <AppstoreOutlined />,
     label: '房间管理',
+  },
+   {
+    key: '/agent',
+    icon: <RobotOutlined />,
+    label: 'AI 助手',
   },
 ];
 

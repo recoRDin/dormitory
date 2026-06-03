@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: dormitory-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: dormitory
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./biz.sql:/docker-entrypoint-initdb.d/biz.sql
+      - mysql-data:/var/lib/mysql
+
+  redis:
+    image: redis:7-alpine
+    container_name: dormitory-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+volumes:
+  mysql-data:
