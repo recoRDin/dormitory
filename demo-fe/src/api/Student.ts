@@ -34,3 +34,8 @@ export function batchDeleteStudents(ids:string[]){
 export function assignBed(data: AssignBed){
     return request.post<AssignBedResult>('/student/assign-bed',data);
 }
+
+// 查询床位路径
+  export function getBedPath(bedId: string){
+      return request.get<string>(`/bed/${bedId}/path`);
+  }

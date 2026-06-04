@@ -12,6 +12,10 @@ import com.example.demo.biz.student.mapper.StudentMapper;
 import com.example.demo.biz.student.service.IStudentService;
 import com.example.demo.biz.student.vo.AssignBedResultVO;
 import com.example.demo.common.exception.BusinessException;
+import com.example.demo.biz.bed.entity.Bed;
+import com.example.demo.biz.bed.mapper.BedMapper;
+import com.example.demo.biz.room.entity.Room;
+import com.example.demo.biz.room.mapper.RoomMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -24,6 +28,8 @@ import java.util.List;
 public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> implements IStudentService {
 
     private final StudentMapper studentMapper;
+    private final RoomMapper roomMapper;
+    private final BedMapper bedMapper;
 
     @Override
     public IPage<Student> pageList(StudentQueryDTO queryDTO) {
@@ -76,23 +82,60 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
             throw new BusinessException("学生不存在");
         }
 
+        //查询目标床位
+        Bed targetBed = bedMapper.selectById(assignBedDTO.getTargetBedId());
+        if (targetBed == null) {
+            throw new BusinessException("目标床位不在");
+        }
+        if(targetBed.getStatus() == 1){
+            throw new BusinessException("该床位已被占用");
+        }
+        if(targetBed.getStatus() == 2){
+            throw new BusinessException("该床位不可分配");
+        }
+
+        //检查目标房间是否满员
+        Room targetRoom = roomMapper.selectById(targetBed.getRoomId());
+        if(targetRoom.getCurrentCount() >= targetRoom.getCapacity()){
+            throw new BusinessException("该房间满员");
+        }
+
         Long oldBedId = student.getBedId();
-        String operation = (oldBedId == null) ? "assign" : "swap";
+        String operation = (oldBedId == null)? "assign":"swap";
 
-        // TODO: 校验目标床位是否空闲（需 BedMapper，待床位模块开发后补充）
-        // TODO: 校验目标床位所在房间是否未满员
+        //释放旧床位
+        if(oldBedId != null){
+            Bed oldBed = bedMapper.selectById(oldBedId);
+            if(oldBed != null){
+                oldBed.setStatus(0);
+                bedMapper.updateById(oldBed);
 
-        // 更新学生床位
+                Room oldRoom = roomMapper.selectById(oldBed.getRoomId());
+                oldRoom.setCurrentCount(oldRoom.getCurrentCount() - 1);
+                roomMapper.updateById(oldRoom);
+            }
+        }
+
+        //占用床位
+        targetBed.setStatus(1);
+        bedMapper.updateById(targetBed);
+
+        targetRoom = roomMapper.selectById(targetBed.getRoomId());
+        targetRoom.setCurrentCount(targetRoom.getCurrentCount() + 1);
+        roomMapper.updateById(targetRoom);
+
+        //更新床位
         student.setBedId(assignBedDTO.getTargetBedId());
         studentMapper.updateById(student);
 
-        // TODO: 释放原床位状态（需 BedMapper）
-        // TODO: 占用目标床位状态（需 BedMapper）
 
+        return buildResult(student,oldBedId,assignBedDTO.getTargetBedId(),operation);
+    }
+    private AssignBedResultVO buildResult(Student student, Long oldBedId, Long newBedId,String operation) {
         AssignBedResultVO result = new AssignBedResultVO();
         result.setStudentId(student.getId());
         result.setOldBedId(oldBedId);
-        result.setNewBedId(assignBedDTO.getTargetBedId());
+        result.setNewBedId(newBedId);
         result.setOperation(operation);
         return result;
     }
@@ -105,8 +148,19 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
             if (student == null) {
                 continue;
             }
-            // TODO: 释放床位（需 BedMapper，待床位模块开发后补充）
-            // if (student.getBedId() != null) { ... 释放床位 ... }
+            //释放床位
+            if(student.getBedId() != null){
+                Bed bed = bedMapper.selectById(student.getBedId());
+                if (bed != null) {
+                    bed.setStatus(0);
+                    bedMapper.updateById(bed);
+
+                    Room room = roomMapper.selectById(bed.getRoomId());
+                    room.setCurrentCount(room.getCurrentCount() - 1);
+                    roomMapper.updateById(room);
+                }
+
+            }
 
             // TODO: 解除账号关联（需 UserMapper，待完善后补充）
             // if (student.getUserId() != null) { ... 解除关联 ... }
