@@ -43,6 +43,7 @@ public class AuthController {
         }
         Map<String, Object> claims = new HashMap<>();
         claims.put("user_id", user.getId());
+        claims.put("account", user.getAccount());
         claims.put("tenant_id", user.getTenantId());
 
         Role role = roleMapper.selectById(user.getRoleId());

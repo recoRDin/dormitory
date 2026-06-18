@@ -14,7 +14,7 @@ import java.util.List;
 public interface
 UserMapper extends BaseMapper<User> {
     @InterceptorIgnore(tenantLine = "true")
-    @Select("select * from sys_user where username = #{account} and is_deleted = 0")
+    @Select("select *, username as account from sys_user where username = #{account} and is_deleted = 0")
     User selectUserForLogin(@Param("account") String account);
 
     @InterceptorIgnore(tenantLine = "true")

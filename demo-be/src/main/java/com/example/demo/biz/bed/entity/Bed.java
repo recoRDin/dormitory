@@ -2,9 +2,12 @@ package com.example.demo.biz.bed.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.Version;
 import com.example.demo.common.entity.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+
 
 @Data
 @TableName("biz_bed")
@@ -19,6 +22,9 @@ public class Bed extends BaseEntity {
     private Integer bedNo;
 
     private Integer status;
+
+    @Version
+    private Integer version;
 
     private String tenantId;
 }

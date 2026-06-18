@@ -25,13 +25,14 @@ const ALL_MENUS: MenuItem[] = [
   { key: '/building', icon: BankOutlined, label: '楼宇管理' },
   { key: '/room', icon: AppstoreOutlined, label: '房间管理' },
   { key: '/agent', icon: RobotOutlined, label: 'AI 助手' },
+  { key: '/select-bed', icon: HomeOutlined, label: '自选床位' },
   { key: '/permission', icon: SafetyOutlined, label: '权限管理' },
 ];
 
 const ROLE_MENU_KEYS: Record<RoleCode, string[]> = {
-  admin:   ['/', '/student', '/class', '/building', '/room', '/agent', '/permission'],
-  manager: ['/', '/student', '/class', '/building', '/room', '/agent'],
-  student: ['/'],
+  admin:   ['/', '/student', '/class', '/building', '/room', '/agent', '/permission','/select-bed'],
+  manager: ['/', '/student', '/class', '/building', '/room', '/agent','/select-bed'],
+  student: ['/', '/select-bed'],
 };
 
 export function getSideMenus(roleCode: RoleCode): MenuProps['items'] {

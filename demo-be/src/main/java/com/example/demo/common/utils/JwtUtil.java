@@ -14,10 +14,13 @@ public class JwtUtil {
 
     public static String createToken(Map<String, Object> claims, String subject){
         SecretKeySpec key = new SecretKeySpec(Base64.getDecoder().decode(SECRET), "HmacSHA256");
-
         return Jwts.builder()
-                .setClaims(claims)      // 放入租户ID、用户ID等负载
-                .setSubject(subject)    // 放入账号名
+                .claim("user_id", claims.get("user_id"))
+                .claim("account", claims.get("account"))
+                .claim("tenant_id", claims.get("tenant_id"))
+                .claim("role_id", claims.get("role_id"))
+                .claim("role_code", claims.get("role_code"))
+                .setSubject(subject)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRE_TIME))
                 .signWith(key, SignatureAlgorithm.HS256)

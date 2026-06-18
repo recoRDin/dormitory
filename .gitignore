@@ -41,6 +41,9 @@ target/
 *.iml
 *.iws
 
+# 使用文档
+使用文档/
+
 # Mac 系统生成的干扰文件（你在 Mac 上必有这个）
 .DS_Store
 

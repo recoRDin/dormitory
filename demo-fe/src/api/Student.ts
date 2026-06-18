@@ -39,3 +39,8 @@ export function assignBed(data: AssignBed){
   export function getBedPath(bedId: string){
       return request.get<string>(`/bed/${bedId}/path`);
   }
+
+// 学生自选床位
+  export function selectBed(bedId: string) {
+    return request.post<string>(`/bed/select/${bedId}`);
+  }

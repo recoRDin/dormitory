@@ -13,7 +13,7 @@ interface JwtPayload {
   tenant_id: string;
   role_id: number;
   role_code: RoleCode;
-  sub: string;
+  account: string;
 }
 
 function decodeJwtPayload(token: string): JwtPayload {
@@ -39,7 +39,7 @@ export default function LoginPage() {
         Cookies.set('token', token, { expires: 1 });
 
         const payload = decodeJwtPayload(token);
-        setRole(payload.role_id, payload.role_code, payload.tenant_id);
+        setRole(payload.role_id, payload.role_code, payload.tenant_id, payload.account);
 
         message.success('登录成功！');
 
