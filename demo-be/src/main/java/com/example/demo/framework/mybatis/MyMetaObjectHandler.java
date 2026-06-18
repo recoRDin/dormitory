@@ -24,6 +24,10 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         if (user != null) {
             this.strictInsertFill(metaObject, "createUser", Long.class, user.getId());
             this.strictInsertFill(metaObject, "updateUser", Long.class, user.getId());
+            String tenantId = user.getTenantId();
+            if (tenantId != null && !tenantId.isEmpty()) {
+                this.strictInsertFill(metaObject, "tenantId", String.class, tenantId);
+            }
         }
     }
 

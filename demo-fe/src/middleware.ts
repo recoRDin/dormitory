@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const whiteList = ['/login', '/register', '/404', '/403', '/500'];
+const whiteList = ['/login', '/404', '/403', '/500'];
 
 export function middleware(request: NextRequest){
     //获取token

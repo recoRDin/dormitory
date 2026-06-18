@@ -25,6 +25,7 @@ public class ClassServiceImpl extends ServiceImpl<ClassMapper, Class> implements
     @Override
     public IPage<Class> pageList(ClassQueryDTO queryDTO) {
         Page<Class> page = new Page<>(queryDTO.getCurrent(), queryDTO.getSize());
+        page.setOptimizeCountSql(false);
         LambdaQueryWrapper<Class> wrapper = new LambdaQueryWrapper<>();
         wrapper
                 .like(queryDTO.getMajor() != null, Class::getMajor, queryDTO.getMajor())

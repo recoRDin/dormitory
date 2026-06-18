@@ -34,6 +34,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     @Override
     public IPage<Student> pageList(StudentQueryDTO queryDTO) {
         Page<Student> page = new Page<>(queryDTO.getCurrent(), queryDTO.getSize());
+        page.setOptimizeCountSql(false);
         LambdaQueryWrapper<Student> wrapper = new LambdaQueryWrapper<>();
         wrapper
                 .like(queryDTO.getStudentNo() != null, Student::getStudentNo, queryDTO.getStudentNo())

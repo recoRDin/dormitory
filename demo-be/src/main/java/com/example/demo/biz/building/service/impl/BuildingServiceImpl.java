@@ -25,6 +25,7 @@ public class BuildingServiceImpl extends ServiceImpl<BuildingMapper, Building> i
     @Override
     public IPage<Building> pageList(BuildingQueryDTO queryDTO) {
         Page<Building> page = new Page<>(queryDTO.getCurrent(), queryDTO.getSize());
+        page.setOptimizeCountSql(false);
         LambdaQueryWrapper<Building> wrapper = new LambdaQueryWrapper<>();
         wrapper
                 .like(queryDTO.getBuildingName() != null, Building::getBuildingName, queryDTO.getBuildingName())

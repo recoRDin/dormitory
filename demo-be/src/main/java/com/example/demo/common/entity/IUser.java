@@ -33,14 +33,35 @@ public interface IUser {
      * 设置租户ID
      */
     void setTenantId(String tenantId);
-    
+
+
     /**
      * 获取账号
      */
     String getAccount();
-    
+
     /**
      * 设置账号
      */
     void setAccount(String username);
+
+    /**
+     * 获取角色ID
+     */
+    Long getRoleId();
+
+    /**
+     * 设置角色ID
+     */
+    void setRoleId(Long roleId);
+
+    /**
+     * 获取角色编码
+     */
+    String getRoleCode();
+
+    /**
+     * 设置角色编码
+     */
+    void setRoleCode(String roleCode);
 }

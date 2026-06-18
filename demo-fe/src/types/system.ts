@@ -7,6 +7,11 @@ export interface SysMenu {
   children?: SysMenu[];
 }
 
+export interface UserInfoData {
+  menuList: SysMenu[];
+  permissions: string[];
+}
+
 export interface LoginDTO {
   account: string;
   password: string;

@@ -31,7 +31,7 @@ public class UserContext {
     }
 
     public static void setTenantID(String tenantId) {
-        if(TENANT_HOLDER.get() != null) {
+        if(TENANT_HOLDER.get() == null) {
             TENANT_HOLDER.set((tenantId));
         }
 

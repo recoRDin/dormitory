@@ -8,6 +8,7 @@ import com.example.demo.biz.student.entity.Student;
 import com.example.demo.biz.student.service.IStudentService;
 import com.example.demo.biz.student.vo.AssignBedResultVO;
 import com.example.demo.common.api.Result;
+import com.example.demo.framework.secure.RequireRole;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,7 @@ public class StudentController {
     }
 
     /** 2. 新增学生信息 */
+    @RequireRole({"admin", "manager"})
     @PostMapping
     public Result<Long> add(@Valid @RequestBody StudentSaveDTO saveDTO) {
         Long id = studentService.addStudent(saveDTO);
@@ -37,6 +39,7 @@ public class StudentController {
     }
 
     /** 3. 修改学生基础信息 */
+    @RequireRole({"admin", "manager"})
     @PutMapping
     public Result<Void> update(@Valid @RequestBody StudentSaveDTO saveDTO) {
         studentService.updateStudent(saveDTO);
@@ -44,12 +47,14 @@ public class StudentController {
     }
 
     /** 4. 分配/调换床位 */
+    @RequireRole({"admin", "manager"})
     @PostMapping("/assign-bed")
     public Result<AssignBedResultVO> assignBed(@Valid @RequestBody AssignBedDTO assignBedDTO) {
         return Result.success(studentService.assignBed(assignBedDTO));
     }
 
     /** 5. 批量逻辑删除学生 */
+    @RequireRole({"admin", "manager"})
     @DeleteMapping
     public Result<Void> batchDelete(@RequestParam String ids) {
         List<Long> idList = Arrays.stream(ids.split(","))

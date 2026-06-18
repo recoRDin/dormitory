@@ -3,60 +3,33 @@
 import { useState } from 'react';
 import { Layout, Menu, theme, Dropdown, Avatar, Space } from 'antd';
 import {
-  HomeOutlined,
   UserOutlined,
-  TeamOutlined,
-  BankOutlined,
-  AppstoreOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   LogoutOutlined,
-  RobotOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { useRouter, usePathname } from 'next/navigation';
 import Cookies from 'js-cookie';
+import { useAuthStore } from '@/store/useAuthStore';
+import type { RoleCode } from '@/utils/permission';
 
 const { Header, Sider, Content } = Layout;
 
-const sideMenuItems: MenuProps['items'] = [
-  {
-    key: '/',
-    icon: <HomeOutlined />,
-    label: '首页',
-  },
-  {
-    key: '/student',
-    icon: <UserOutlined />,
-    label: '学生管理',
-  },
-  {
-    key: '/class',
-    icon: <TeamOutlined />,
-    label: '班级管理',
-  },
-  {
-    key: '/building',
-    icon: <BankOutlined />,
-    label: '楼宇管理',
-  },
-  {
-    key: '/room',
-    icon: <AppstoreOutlined />,
-    label: '房间管理',
-  },
-   {
-    key: '/agent',
-    icon: <RobotOutlined />,
-    label: 'AI 助手',
-  },
-];
+const ROLE_LABELS: Record<RoleCode, string> = {
+  admin: '管理员',
+  manager: '宿管',
+  student: '学生',
+};
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const { token: themeToken } = theme.useToken();
+
+  const sideMenus = useAuthStore((s) => s.sideMenus);
+  const roleCode = useAuthStore((s) => s.roleCode);
 
   const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
     router.push(key);
@@ -65,6 +38,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const handleLogout = () => {
     Cookies.remove('token');
     Cookies.remove('refresh_token');
+    useAuthStore.getState().clearAuth();
     router.push('/login');
   };
 
@@ -76,6 +50,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       onClick: handleLogout,
     },
   ];
+
+  const displayName = roleCode ? ROLE_LABELS[roleCode] : '用户';
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -112,7 +88,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <Menu
           mode="inline"
           selectedKeys={[pathname]}
-          items={sideMenuItems}
+          items={sideMenus}
           onClick={handleMenuClick}
         />
       </Sider>
@@ -139,7 +115,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
             <Space style={{ cursor: 'pointer' }}>
               <Avatar icon={<UserOutlined />} />
-              <span>管理员</span>
+              <span>{displayName}</span>
             </Space>
           </Dropdown>
         </Header>

@@ -6,9 +6,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.example.demo.common.entity.IUser;
 import lombok.Data;
 
-/**
- * 用户身份模型（你的专属名牌）
- */
 @Data
 @TableName("sys_user")
 public class User implements IUser {
@@ -17,7 +14,10 @@ public class User implements IUser {
     private Long id;
     @TableField("username")
     private String account;
-    private String tenantId; // 核心：多租户ID
-    private String name;
+    private String tenantId;
     private String password;
+    private Long roleId;
+
+    @TableField(exist = false)
+    private String roleCode;
 }

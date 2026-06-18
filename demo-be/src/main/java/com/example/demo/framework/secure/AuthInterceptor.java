@@ -47,7 +47,9 @@ public class AuthInterceptor implements HandlerInterceptor {
                 private Long id;
                 private String tenantId;
                 private String account;
-                
+                private Long roleId;
+                private String roleCode;
+
                 @Override
                 public Long getId() { return id; }
                 @Override
@@ -60,11 +62,25 @@ public class AuthInterceptor implements HandlerInterceptor {
                 public String getAccount() { return account; }
                 @Override
                 public void setAccount(String account) { this.account = account; }
+                @Override
+                public Long getRoleId() { return roleId; }
+                @Override
+                public void setRoleId(Long roleId) { this.roleId = roleId; }
+                @Override
+                public String getRoleCode() { return roleCode; }
+                @Override
+                public void setRoleCode(String roleCode) { this.roleCode = roleCode; }
             };
-            
+
             user.setId(Long.valueOf(claims.get("user_id").toString()));
             user.setTenantId(claims.get("tenant_id").toString());
             user.setAccount(claims.getSubject());
+            if (claims.get("role_id") != null) {
+                user.setRoleId(Long.valueOf(claims.get("role_id").toString()));
+            }
+            if (claims.get("role_code") != null) {
+                user.setRoleCode(claims.get("role_code").toString());
+            }
 
             UserContext.setUser(user); // 塞进口袋
             return true; // 放行

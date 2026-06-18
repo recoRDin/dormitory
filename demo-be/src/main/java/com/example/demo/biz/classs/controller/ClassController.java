@@ -6,6 +6,7 @@ import com.example.demo.biz.classs.dto.ClassSaveDTO;
 import com.example.demo.biz.classs.entity.Class;
 import com.example.demo.biz.classs.service.IClassService;
 import com.example.demo.common.api.Result;
+import com.example.demo.framework.secure.RequireRole;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -31,17 +32,20 @@ public class ClassController {
         return Result.success(classService.listAll());
     }
 
+    @RequireRole({"admin", "manager"})
     @PostMapping
     public Result<Long> add(@Valid @RequestBody ClassSaveDTO saveDTO) {
         return Result.success(classService.addClass(saveDTO));
     }
 
+    @RequireRole({"admin", "manager"})
     @PutMapping
     public Result<Void> update(@Valid @RequestBody ClassSaveDTO saveDTO) {
         classService.updateClass(saveDTO);
         return Result.success();
     }
 
+    @RequireRole({"admin", "manager"})
     @DeleteMapping
     public Result<Void> batchDelete(@RequestParam String ids) {
         List<Long> idList = Arrays.stream(ids.split(","))

@@ -1,34 +1,46 @@
-import { SysMenu } from '@/types/system';
+import React from 'react';
+import type { MenuProps } from 'antd';
+import {
+  HomeOutlined,
+  UserOutlined,
+  TeamOutlined,
+  BankOutlined,
+  AppstoreOutlined,
+  RobotOutlined,
+  SafetyOutlined,
+} from '@ant-design/icons';
 
+export type RoleCode = 'admin' | 'manager' | 'student';
 
-export function formatPermissionTree(rawTree: SysMenu[]) {
+interface MenuItem {
+  key: string;
+  icon: React.ComponentType;
+  label: string;
+}
 
-    const buttonCodes: string[] = [];
+const ALL_MENUS: MenuItem[] = [
+  { key: '/', icon: HomeOutlined, label: '首页' },
+  { key: '/student', icon: UserOutlined, label: '学生管理' },
+  { key: '/class', icon: TeamOutlined, label: '班级管理' },
+  { key: '/building', icon: BankOutlined, label: '楼宇管理' },
+  { key: '/room', icon: AppstoreOutlined, label: '房间管理' },
+  { key: '/agent', icon: RobotOutlined, label: 'AI 助手' },
+  { key: '/permission', icon: SafetyOutlined, label: '权限管理' },
+];
 
-    function traverse(nodes: SysMenu[]): SysMenu[] {
+const ROLE_MENU_KEYS: Record<RoleCode, string[]> = {
+  admin:   ['/', '/student', '/class', '/building', '/room', '/agent', '/permission'],
+  manager: ['/', '/student', '/class', '/building', '/room', '/agent'],
+  student: ['/'],
+};
 
-        const cleanMenus: SysMenu[] = [];
-
-        nodes.forEach(node => {
-        //如果是按钮     
-        if(node.category === 2){
-            if(node.code){
-                buttonCodes.push(node.code);
-            }
-        //如果是菜单    
-        }else if(node.category === 1){
-
-            const cleanNode: SysMenu = { ...node, children: [] };
-
-            if (node.children && node.children.length > 0) {
-                cleanNode.children = traverse(node.children);
-            }
-
-            cleanMenus.push(cleanNode);
-        }
-        });
-        return cleanMenus;
-    }
-    const menuTree = traverse(rawTree);
-    return { menuTree,buttonCodes}
+export function getSideMenus(roleCode: RoleCode): MenuProps['items'] {
+  const allowedKeys = ROLE_MENU_KEYS[roleCode] ?? ROLE_MENU_KEYS.student;
+  return ALL_MENUS
+    .filter((item) => allowedKeys.includes(item.key))
+    .map((item) => ({
+      key: item.key,
+      icon: React.createElement(item.icon),
+      label: item.label,
+    }));
 }

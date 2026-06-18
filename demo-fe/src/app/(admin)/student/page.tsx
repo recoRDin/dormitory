@@ -6,7 +6,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 
 import {
-  Table, Button, Space, Input, InputNumber, Select, Form,
+  Table, Button, Space, Input, Select, Form,
   Modal, message, Popconfirm, Tag,
 } from 'antd';
 
@@ -21,6 +21,7 @@ import {
 
 import { getBuildingList } from '@/api/Building';
 import { getRoomPage, getRoomBeds } from '@/api/Room';
+import { getClassList } from '@/api/Class';
 
 const genderMap: Record<number, { label: string; color: string }> = {
   1: { label: '男', color: 'blue' },
@@ -34,6 +35,10 @@ export default function StudentPage() {
   const [loading, setLoading] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [query, setQuery] = useState<StudentQuery>({ current: 1, size: 10 });
+
+  // 班级列表 classId → 班级名称
+  const [classMap, setClassMap] = useState<Record<string, string>>({});
+  const [classOptions, setClassOptions] = useState<{ value: string; label: string }[]>([]);
 
   // 床位路径映射 bedId → "1号宿舍楼 101房间 2号床"
   const [dormitoryMap, setDormitoryMap] = useState<Record<string, string>>({});
@@ -50,6 +55,21 @@ export default function StudentPage() {
   const [buildings, setBuildings] = useState<any[]>([]);
   const [rooms, setRooms] = useState<any[]>([]);
   const [beds, setBeds] = useState<any[]>([]);
+
+  // 加载班级列表
+  useEffect(() => {
+    getClassList().then((list) => {
+      const map: Record<string, string> = {};
+      const opts: { value: string; label: string }[] = [];
+      list.forEach((c: any) => {
+        const name = `${c.grade}${c.className}`;
+        map[c.id] = name;
+        opts.push({ value: c.id, label: name });
+      });
+      setClassMap(map);
+      setClassOptions(opts);
+    }).catch(() => {});
+  }, []);
 
   // 请求数据
   const fetchData = useCallback(async () => {
@@ -109,7 +129,8 @@ export default function StudentPage() {
       }
       setModalOpen(false);
       fetchData();
-    } catch {
+    } catch (err: any) {
+      // 表单验证失败无需处理，API 错误已在 request 拦截器中提示
     }
   };
 
@@ -191,24 +212,15 @@ export default function StudentPage() {
       },
     },
     {
-      title: '身份证号',
-      dataIndex: 'idCard',
-      width: 180,
+      title: '班级',
+      dataIndex: 'classId',
+      width: 130,
+      render: (id: string) => classMap[id] || id,
     },
     {
       title: '手机号',
       dataIndex: 'phone',
       width: 130,
-    },
-    {
-      title: '邮箱',
-      dataIndex: 'email',
-      width: 180,
-    },
-    {
-      title: '班级ID',
-      dataIndex: 'classId',
-      width: 90,
     },
     {
       title: '住宿信息',
@@ -324,7 +336,7 @@ export default function StudentPage() {
             pageSize: pagination.pageSize,
           })
         }
-        scroll={{ x: 1300 }}
+        scroll={{ x: 1100 }}
       />
 
       {/* 新增/编辑弹窗 */}
@@ -374,10 +386,17 @@ export default function StudentPage() {
           </Form.Item>
           <Form.Item
             name="classId"
-            label="班级ID"
-            rules={[{ required: true, message: '请输入班级ID' }]}
+            label="班级"
+            rules={[{ required: true, message: '请选择班级' }]}
           >
-            <InputNumber placeholder="请输入班级ID" style={{ width: '100%' }} />
+            <Select
+              placeholder="请选择班级"
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              options={classOptions}
+            />
           </Form.Item>
         </Form>
       </Modal>

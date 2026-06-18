@@ -29,6 +29,7 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements IR
     @Override
     public IPage<Room> pageList(RoomQueryDTO queryDTO) {
         Page<Room> page = new Page<>(queryDTO.getCurrent(), queryDTO.getSize());
+        page.setOptimizeCountSql(false);
         LambdaQueryWrapper<Room> wrapper = new LambdaQueryWrapper<>();
         wrapper
                 .eq(queryDTO.getBuildingId() != null, Room::getBuildingId, queryDTO.getBuildingId())
