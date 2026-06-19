@@ -77,7 +77,7 @@ public class BedSelectService {
             throw new BusinessException("并发冲突，请重试");
         }
 
-        //  更新学生的床位
+        //  更新学生的床
         student.setBedId(bedID);
         studentMapper.updateById(student);
 

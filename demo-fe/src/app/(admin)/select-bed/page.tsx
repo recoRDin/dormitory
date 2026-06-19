@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, Typography, Button, List, message, Spin } from 'antd';
-import { HomeOutlined } from '@ant-design/icons';
+import { Card, Typography, Button, List, message, Spin, Space } from 'antd';
+import { HomeOutlined, ReloadOutlined } from '@ant-design/icons';
 import request from '@/utils/request';
 import { selectBed } from '@/api/Student';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const { Title } = Typography;
 
@@ -16,11 +17,13 @@ interface BedInfo {
 }
 
 export default function SelectBedPage() {
+  const roleCode = useAuthStore((s) => s.roleCode);
   const [rooms, setRooms] = useState<any[]>([]);
   const [bedsByRoom, setBedsByRoom] = useState<Record<string, BedInfo[]>>({});
   const [buildingMap, setBuildingMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [selecting, setSelecting] = useState<string | null>(null);
+  const [initLoading, setInitLoading] = useState(false);
   const [hasBed, setHasBed] = useState(false);
 
   useEffect(() => {
@@ -94,7 +97,26 @@ export default function SelectBedPage() {
 
   return (
     <div>
-      <Title level={4} style={{ marginBottom: 24 }}>自选床位</Title>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+        <Title level={4} style={{ margin: 0 }}>自选床位</Title>
+        {(roleCode === 'admin' || roleCode === 'manager') && (
+          <Button
+            icon={<ReloadOutlined />}
+            loading={initLoading}
+            onClick={async () => {
+              setInitLoading(true);
+              try {
+                await request.post('/bed/init-stock');
+                message.success('库存初始化完成');
+                window.location.reload();
+              } catch { /* ignored */ }
+              finally { setInitLoading(false); }
+            }}
+          >
+            初始化库存
+          </Button>
+        )}
+      </div>
       {availableRooms.length === 0 ? (
         <Card><Typography.Text type="secondary">暂无可选床位</Typography.Text></Card>
       ) : (
