@@ -101,7 +101,15 @@ export default function RoomPage() {
   };
 
   const columns: ColumnsType<RoomInfo> = [
-    { title: '楼宇ID', dataIndex: 'buildingId', width: 100 },
+    {
+      title: '楼宇',
+      dataIndex: 'buildingId',
+      width: 120,
+      render: (id: string) => {
+        const b = buildings.find((b) => b.id === id);
+        return b?.buildingName || id;
+      },
+    },
     { title: '楼层', dataIndex: 'floor', width: 80 },
     { title: '房间号', dataIndex: 'roomNo', width: 100 },
     { title: '房型', dataIndex: 'roomType', width: 100 },
